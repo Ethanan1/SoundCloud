@@ -1,6 +1,6 @@
 // backend/routes/api/session.js
 const express = require('express')
-
+const router = express.Router();
 const { setTokenCookie, restoreUser } = require('../../utils/auth');
 const { User } = require('../../db/models');
 const { check } = require('express-validator');
@@ -90,6 +90,6 @@ router.post(
     }
   );
 
-const router = express.Router();
+
 
 module.exports = router;
