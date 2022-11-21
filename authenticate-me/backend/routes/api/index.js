@@ -4,6 +4,8 @@ const sessionRouter = require('./session.js');
 const usersRouter = require('./users.js');
 const { restoreUser } = require("../../utils/auth.js");
 const songsRouter = require('./songs.js');
+const albumsRouter = require('./albums.js');
+const commentsRouter = require('./comments.js');
 
 // backend/routes/api/index.js
 // ...
@@ -18,6 +20,10 @@ const songsRouter = require('./songs.js');
   router.use('/songs', songsRouter);
 
   router.use('/users', usersRouter);
+
+  router.use('/albums', albumsRouter);
+
+  router.use('/comments', commentsRouter);
 
 router.post('/test', function(req, res) {
     res.json({ requestBody: req.body });
