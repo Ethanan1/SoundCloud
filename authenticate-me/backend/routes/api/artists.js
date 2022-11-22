@@ -6,18 +6,22 @@ const { check } = require("express-validator")
 const { handleValidationErrors } = require("../../utils/validation")
 const app = require ('../../app')
 
-const validateArtists = [
-    check('title')
-      .exists({ checkFalsy: true })
-      .withMessage('Song title is required'),
-    check('description')
-      .exists({ checkFalsy: true })
-      .withMessage('Description is required'),
-      check('imageUrl')
-      .exists({ checkFalsy: true })
-      .withMessage('Image Url is required'),
-    handleValidationErrors
-  ];
+// const validateArtists = [
+//     check('title')
+//       .exists({ checkFalsy: true })
+//       .withMessage('Song title is required'),
+//     check('description')
+//       .exists({ checkFalsy: true })
+//       .withMessage('Description is required'),
+//       check('imageUrl')
+//       .exists({ checkFalsy: true })
+//       .withMessage('Image Url is required'),
+//     handleValidationErrors
+//   ];
+
+router.get('/:artistId', async (req, res) => {
+    
+})
 
 
 
