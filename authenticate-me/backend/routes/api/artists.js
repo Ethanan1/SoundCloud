@@ -1,28 +1,37 @@
 const express = require("express");
 const { User, Song, Album, Playlist, Comment } = require("../../db/models");
 const router = express.Router();
-const { requireAuth } = require("../../utils/auth")
+const { requireAuth, restoreUser } = require("../../utils/auth")
 const { check } = require("express-validator")
 const { handleValidationErrors } = require("../../utils/validation")
-const app = require ('../../app')
+const app = require ('../../app');
+const { nextTick } = require("async");
 
-// const validateArtists = [
-//     check('title')
-//       .exists({ checkFalsy: true })
-//       .withMessage('Song title is required'),
-//     check('description')
-//       .exists({ checkFalsy: true })
-//       .withMessage('Description is required'),
-//       check('imageUrl')
-//       .exists({ checkFalsy: true })
-//       .withMessage('Image Url is required'),
-//     handleValidationErrors
-//   ];
+// get all album from artistId
+router.get('/:userId/albums', async (req, res) => {
 
-router.get('/:artistId', async (req, res) => {
-    
-})
+    const { userId } = req.params;
+    const artist = await User.findOne({
+        where: {
+            id: userId
+        }
+    })
 
+    if (artist) {
+        const albums = await Album.findAll({
+            where: {
+                userId
+            },
+         })
+        return res.json({ Albums:albums })
+
+    } else {
+        return res.status(404).json({
+            'message': "Artist couldn't be found",
+            'statusCode': 404
+        })
+    }
+});
 
 
 

@@ -1,32 +1,33 @@
 const express = require("express");
 const { User, Song, Album, Playlist, Comment } = require("../../db/models");
 const router = express.Router();
-const { requireAuth } = require("../../utils/auth")
+const { requireAuth, restoreUser } = require("../../utils/auth")
 const { check } = require("express-validator")
 const { handleValidationErrors } = require("../../utils/validation")
 const app = require ('../../app')
+const { Model } = require("sequelize");
 
 const validateAlbum = [
     check('title')
       .exists({ checkFalsy: true })
-      .withMessage('Song title is required'),
+      .withMessage('Album title is required'),
     check('description')
       .exists({ checkFalsy: true })
-      .withMessage('Description is required'),
+      .withMessage('Album Description is required'),
       check('imageUrl')
       .exists({ checkFalsy: true })
-      .withMessage('Image Url is required'),
+      .withMessage('Album Image Url is required'),
     handleValidationErrors
   ];
 
 //returns all albums
 router.get('/', async (req, res) => {
     const albums = await Album.findAll();
-    res.json(albums)
+    res.json({ Albums: albums })
 });
 
 //get all albums created by current user
-router.get('/:userId', requireAuth, async (req, res) => {
+router.get('/current', requireAuth, async (req, res) => {
     const userId = req.user.id;
     const albums = await Album.findAll({
         where: {
@@ -37,14 +38,18 @@ router.get('/:userId', requireAuth, async (req, res) => {
 })
 
 //get albums of artist from an ID
-router.get('/:artistId', async (req, res, next) => {
+router.get('/:userId', async (req, res, next) => {
+    const albumId = req.album.id;
+    const albums = await Album.findAll({
+        where: {
+            albumId: albumId,
+        }
+    });
 
-        const albums = await Album.findByPk(req.params.artistId);
-
-        if (albums) {
+        if (albumId) {
             return res.json(albums)
         } else {
-            const err = new Error("artist couldn't be found")
+            const err = new Error("album couldn't be found")
             err.status = 404;
             return next(err);
         }
@@ -52,19 +57,26 @@ router.get('/:artistId', async (req, res, next) => {
     })
 
 //get details of album from an ID
-router.get('/:artistId', async (req, res, next) => {
+router.get('/:albumId', async (req, res, next) => {
 
-    const albums = await Album.findByPk(req.params.artistId);
+    const { albumId } = req.params;
+    const album = await Album.findByPk(albumId, {
+        include: [
+            { model: Song }
+        ]
+    });
 
-    if (albums) {
-        return res.json(albums)
+    if (album) {
+        const artist = await User.scope('includeArtist').findByPk(album.userId);
+        album.dataValues.Artist = artist
+        return res.json(album)
     } else {
-        const err = new Error("User album does not exist")
+        const err = new Error();
+        err.message = "Album not found";
         err.status = 404;
-        return next(err);
+        return next(err)
     }
-
-})
+});
 
 //create an album
 router.post('/', requireAuth, validateAlbum, async (req, res) => {

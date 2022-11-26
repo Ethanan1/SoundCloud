@@ -29,7 +29,7 @@ router.get('/:songId', async (req, res, next) => {
     const song = await Song.findByPk(req.params.songId);
 
     if (song) {
-        return res.json(song)
+        res.json(song)
     } else {
         const err = new Error("Song does not exist")
         err.status = 404;
@@ -51,6 +51,7 @@ const validateSong = [
 
 router.post('/', requireAuth, validateSong, async (req, res, next) => {
     const { title, description, url, imageUrl, albumId } = req.body;
+    const userId = req.user.id;
 
     if (albumId) {
         const album = await Album.findByPk(albumId);
@@ -68,13 +69,14 @@ router.post('/', requireAuth, validateSong, async (req, res, next) => {
         url,
         imageUrl,
         albumId,
+        userId
     })
 
     res.json(song);
 })
 
 //updates and returns an existing song
-router.put('/:songId', requireAuth, validateSong, async (req, res) => {
+router.put('/:songId', requireAuth, validateSong, async (req, res, next) => {
 //query for song, => series of if statements
     const userId = req.user.id;
     const song = await Song.findByPk(req.params.songId);
